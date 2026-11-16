@@ -6,8 +6,6 @@ uzume is the norns runtime (matron, crone, softcut and the SuperCollider engine 
 the keyboard stands in for the three keys and three encoders, and sound goes out through PipeWire. The norns scripts tested so far run unmodified; see [Known limits](#known-limits) for what is missing.
 It comes as one .deb and shows up in the launcher.
 
-Uzume is the goddess of dance and laughter in Japanese mythology.
-
 ![uzume running Avonlea on the Cardputer Zero](docs/images/device.jpg)
 
 ## At a glance
