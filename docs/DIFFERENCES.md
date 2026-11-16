@@ -46,7 +46,7 @@ The changes are in `norns-port/` (patches 1 to 11 in `apply_patches.py`, new fil
 | Paths in the Select menu | `/home/we/dust/code`, fixed | the real path (patch 8) |
 | maiden (web editor, script catalogue) | yes | not included. Copy scripts into `dust/code` |
 | Fonts | the full set | the same set, except `liquid.ttf` and `bmp/creep.bdf`, which have no usable license. Those font numbers draw with norns.ttf and tom-thumb (patch 11) |
-| Services | systemd units | one launcher script (`/opt/uzume/bin/uzume-run`) and a `.desktop` entry |
+| Services | systemd units | one launcher script (`/opt/uzume/bin/uzume-run`) and a `.desktop` entry. While Uzume runs, the desktop panel, file manager, portal and volume helpers and the PulseAudio bridge are stopped (about 10 MB more free RAM) and started again at the end; `UZUME_KIOSK=0` turns this off |
 | Link, MIDI clock, softcut, params, metro, clock, osc | yes | yes, it is the same code |
 
 ## Limits

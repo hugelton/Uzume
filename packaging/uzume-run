@@ -27,13 +27,42 @@ Y
 # keep what it had on the LCD and put it back on exit.
 FB=/dev/fb0
 head -c 108800 $FB > "$D/run/fb.snapshot" 2>/dev/null
+# Memory: the desktop's panel, file manager, portal / volume helpers and the PulseAudio bridge are not needed while Uzume runs (it uses PipeWire's
+# own JACK interface and draws on the LCD, not on the desktop), and the Zero has 352 MB. They are stopped for the time Uzume runs and started
+# again when it ends. UZUME_KIOSK=0 leaves everything alone. Only the user's own services and processes are touched; nothing needs root.
+KIOSK_USER_UNITS="pipewire-pulse.socket pipewire-pulse.service xdg-desktop-portal-gtk.service xdg-desktop-portal-wlr.service xdg-desktop-portal.service xdg-document-portal.service xdg-permission-store.service gvfs-daemon.service gvfs-afc-volume-monitor.service gvfs-goa-volume-monitor.service gvfs-gphoto2-volume-monitor.service gvfs-mtp-volume-monitor.service gvfs-udisks2-volume-monitor.service mpris-proxy.service"
+KIOSK=0; KIOSK_RESTORE=""
+kiosk_on() {
+  [ "${UZUME_KIOSK:-1}" = 1 ] || return 0
+  [ -n "$(pgrep -u "$(id -u)" -x wf-panel-pi)" ] && KIOSK_PANEL=1
+  [ -n "$(pgrep -u "$(id -u)" -x pcmanfm)" ] && KIOSK_FM=1
+  pkill -u "$(id -u)" -f '^/bin/sh /usr/bin/lwrespawn /usr/bin/(pcmanfm-pi|wf-panel-pi)'
+  pkill -u "$(id -u)" -x wf-panel-pi; pkill -u "$(id -u)" -x pcmanfm
+  for u in $KIOSK_USER_UNITS; do
+    if systemctl --user is-active --quiet "$u" 2>/dev/null; then KIOSK_RESTORE="$KIOSK_RESTORE $u"; systemctl --user stop "$u" >/dev/null 2>&1; fi
+  done
+  KIOSK=1
+}
+kiosk_off() {
+  [ "$KIOSK" = 1 ] || return 0
+  KIOSK=0
+  # detached, so that it finishes even if this script is killed right after it ends
+  (
+    [ "$KIOSK_FM" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/pcmanfm-pi >/dev/null 2>&1 </dev/null &
+    [ "$KIOSK_PANEL" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/wf-panel-pi >/dev/null 2>&1 </dev/null &
+    for u in $KIOSK_RESTORE; do case $u in *.socket) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
+    for u in $KIOSK_RESTORE; do case $u in *.service) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
+  ) </dev/null >/dev/null 2>&1 &
+}
 cleanup() {
   [ -s "$D/run/fb.snapshot" ] && cat "$D/run/fb.snapshot" > $FB 2>/dev/null
   pkill -u "$(id -u)" -x sclang; pkill -u "$(id -u)" -x scsynth; pkill -u "$(id -u)" -f '^tail -f /dev/null$'
   pw-metadata -n settings 0 clock.force-quantum 0 >/dev/null 2>&1
+  kiosk_off
 }
 trap cleanup EXIT INT TERM
 cleanup 2>/dev/null
+kiosk_on
 # No realtime priority for user processes on the Zero: at PipeWire's default 1024-frame quantum the graph missed
 # deadlines (audible jitter). 2048 frames (43 ms) does not.
 pw-metadata -n settings 0 clock.force-quantum 2048 >/dev/null 2>&1
