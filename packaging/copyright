@@ -1,5 +1,5 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: Uzume
+Upstream-Name: uzume
 Source: https://github.com/hugelton/Uzume (this package); upstream norns: https://github.com/monome/norns
 
 Files: opt/uzume/bin/norns opt/uzume/share/norns/* opt/uzume/share/sc/*
@@ -52,7 +52,7 @@ Files: opt/uzume/lib/libjack.so.*
 Copyright: PipeWire contributors
 License: Expat and LGPL-2.1+
  PipeWire's JACK client library, unmodified, from the Debian package pipewire-jack; see libjack-pipewire-copyright.
- It is bundled so that Uzume does not replace the system's JACK libraries; it can be replaced by another libjack.so.0.
+ It is bundled so that uzume does not replace the system's JACK libraries; it can be replaced by another libjack.so.0.
 
 Files: opt/uzume/bin/uzume-run opt/uzume/bin/jack_connect opt/uzume/etc/* opt/uzume/share/dust-default/* usr/share/APPLaunch/*
 Copyright: 2026 Leo Kuroshita (@kurogedelic)

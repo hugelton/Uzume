@@ -1,4 +1,4 @@
-# Upstream sources Uzume builds against. Not copied into this repository: fetch.sh clones them at these exact commits.
+# Upstream sources uzume builds against. Not copied into this repository: fetch.sh clones them at these exact commits.
 # name        url                                      commit                                    license
 norns         https://github.com/monome/norns          227aa0442181e3eab3fc189ee6b5342648ce7300  GPL-3.0
 libmonome     https://github.com/monome/libmonome      9055ea22fd824839be821c10f6e9b13e9d2aa3cd  ISC

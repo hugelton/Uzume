@@ -1,0 +1,11 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
+# Removes the /home/we link made by postinst (only that link; the files in ~/.local/share/uzume stay).
+set -e
+case "$1" in remove|purge)
+  if [ -L /home/we ]; then
+    case $(readlink /home/we) in */.local/share/uzume/we) rm -f /home/we;; esac
+  fi;;
+esac
+exit 0

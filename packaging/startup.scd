@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
-// Uzume: server options for the scsynth that sclang's Crone boots (small, for a 352 MB machine).
+// uzume: server options for the scsynth that sclang's Crone boots (small, for a 352 MB machine).
 var o = Server.default.options;
 Server.program = "/opt/uzume/bin/scsynth";
 o.ugenPluginsPath = ["/opt/uzume/lib/SuperCollider/plugins"];

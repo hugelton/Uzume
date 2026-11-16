@@ -8,7 +8,7 @@ function key(n, z) k[n] = z; last = "K" .. n .. (z == 1 and " down" or " up"); r
 function enc(n, d) e[n] = e[n] + d; last = "E" .. n .. " " .. (d > 0 and "+" or "") .. d; redraw() end
 function redraw()
   screen.clear()
-  screen.level(15); screen.move(2, 10); screen.text("Uzume key test")
+  screen.level(15); screen.move(2, 10); screen.text("uzume key test")
   screen.level(8); screen.move(2, 24); screen.text("K " .. k[1] .. k[2] .. k[3])
   for i = 1, 3 do screen.move(2 + (i - 1) * 42, 38); screen.text("E" .. i .. "=" .. e[i]) end
   screen.level(15); screen.move(2, 56); screen.text(last)

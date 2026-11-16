@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
 /* No-op replacement for matron's SSD1322 OLED driver (SPI + libgpiod 1.x API, which Debian 13 no longer ships).
- * Uzume draws through screen:fb / screen:ascii instead (uzume_screen.cc). */
+ * uzume draws through screen:fb / screen:ascii instead (uzume_screen.cc). */
 #include <stdint.h>
 #include <stdbool.h>
 #include <cairo.h>

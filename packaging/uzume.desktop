@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Uzume
+Name=uzume
 Comment=Run norns scripts: matron, crone, softcut and SuperCollider engines
 Exec=/opt/uzume/bin/uzume-run
 Icon=share/images/uzume.png

@@ -1,12 +1,14 @@
-# Uzume
+# uzume
 
 norns scripts on the Cardputer Zero.
 
-Uzume is the norns runtime (matron, crone, softcut and the SuperCollider engine host) built for the Zero. The 128x64 screen is drawn on the 320x170 LCD,
+uzume is the norns runtime (matron, crone, softcut and the SuperCollider engine host) built for the Zero. The 128x64 screen is drawn on the 320x170 LCD,
 the keyboard stands in for the three keys and three encoders, and sound goes out through PipeWire. Scripts written for norns run as they are.
 It comes as one .deb and shows up in the launcher.
 
-![Avonlea on Uzume, amber tint](docs/images/avonlea.png)
+Uzume is the goddess of dance and laughter in Japanese mythology.
+
+![uzume running Avonlea on the Cardputer Zero](docs/images/device.jpg)
 
 ## At a glance
 
@@ -24,6 +26,10 @@ It comes as one .deb and shows up in the launcher.
 What is different from the original, in detail, is in [docs/DIFFERENCES.md](docs/DIFFERENCES.md).
 
 ## Screens
+
+Avonlea, amber tint:
+
+![Avonlea, amber tint](docs/images/avonlea.png)
 
 The menus, with SYSTEM > TINT:
 
@@ -45,7 +51,7 @@ Replace `pi` with your user name on the Zero. If `CardputerZero.local` is not fo
 Copy the package to the Zero:
 
 ```sh
-scp uzume_0.1.5_arm64.deb pi@CardputerZero.local:
+scp uzume_0.1.7_arm64.deb pi@CardputerZero.local:
 ```
 
 Log in to the Zero:
@@ -57,13 +63,13 @@ ssh pi@CardputerZero.local
 Install it (`sudo` asks for your password):
 
 ```sh
-sudo apt install ./uzume_0.1.5_arm64.deb
+sudo apt install ./uzume_0.1.7_arm64.deb
 ```
 
 The same command updates an older version. `sudo apt remove uzume` removes it; your scripts in `~/.local/share/uzume` stay.
 
-Open Uzume in the launcher. The first start takes about 15 seconds. Scripts go in `~/.local/share/uzume/we/dust/code/<name>/<name>.lua`;
-restart Uzume after adding a script that has its own SuperCollider engine. Hold Esc for a second, or choose SLEEP in the menu, to go back to the launcher.
+Open uzume in the launcher. The first start takes about 15 seconds. Scripts go in `~/.local/share/uzume/we/dust/code/<name>/<name>.lua`;
+restart uzume after adding a script that has its own SuperCollider engine. Hold Esc for a second, or choose SLEEP in the menu, to go back to the launcher.
 
 ## Keys
 
@@ -82,7 +88,7 @@ Hold an encoder key and it keeps turning. SYSTEM > TINT changes the colour of th
 ## maiden (web editor)
 
 maiden, the norns web editor and console, is included and off by default. Turn it on in `~/.local/share/uzume/maiden.conf`
-(`on=1`; the file is made at the first start) and restart Uzume. It uses about 25 MB more memory.
+(`on=1`; the file is made at the first start) and restart uzume. It uses about 25 MB more memory.
 
 It listens on 127.0.0.1 only, so reach it from a computer through ssh:
 
@@ -96,11 +102,10 @@ whole network instead. maiden has no password: anyone who can open it can run an
 
 ## TODO
 
-- Scripts that write `/home/we/...` by hand do not find their files (Uzume's home is `~/.local/share/uzume/we`).
 - norns crashes while quitting, after its state is saved. Nothing is lost, but it should end cleanly.
 - Long sessions: run scripts for an hour with key and encoder input and watch for dropouts and memory.
 - Keys: make the mapping closer to norns' own USB keyboard shortcuts (F1-F4 for the menu pages).
-- SETTINGS > DISPLAY > BRIGHTNESS: drive the LCD backlight. SYSTEM > RESTART: restart Uzume.
+- SETTINGS > DISPLAY > BRIGHTNESS: drive the LCD backlight. SYSTEM > RESTART: restart uzume.
 - grid and arc: add serialosc.
 - maiden: try the script catalogue (project install and update).
 
@@ -114,13 +119,18 @@ UZUME_BUFFRAMES=2097152 sh norns-port/build.sh                                  
 docker build --platform linux/arm64 -t uzume-sc -f sc/build/Dockerfile sc/build   # SuperCollider and JACK
 sh packaging/maiden/build-maiden.sh                                               # maiden (Go server, web app in a node:16 container)
 sh packaging/collect.sh                                                           # gathers the pieces
-sh packaging/build-deb.sh                                                         # out/uzume_0.1.5_arm64.deb
+sh packaging/build-deb.sh                                                         # out/uzume_0.1.7_arm64.deb
 ```
 
 The changes to the upstream source are in `norns-port/apply_patches.py` (numbered, with a comment on each) and `norns-port/overlay/`.
 
 ## License
 
-GPL-3.0-or-later, see [LICENSE](LICENSE). What Uzume is built from, and under which licenses, is listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+GPL-3.0-or-later, see [LICENSE](LICENSE).
+
+uzume is built from [norns](https://github.com/monome/norns) by monome and the norns contributors (GPL-3.0),
+and includes [libmonome](https://github.com/monome/libmonome) (ISC), [SuperCollider](https://supercollider.github.io) (GPL-3.0)
+and [maiden](https://github.com/monome/maiden) (GPL-3.0). The full list, with the licenses of everything else in the package,
+is in [THIRD_PARTY.md](THIRD_PARTY.md).
 
 Leo Kuroshita ([@kurogedelic](https://github.com/kurogedelic))

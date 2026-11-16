@@ -1,4 +1,4 @@
--- SYSTEM > TINT: colour of the LCD picture (Uzume). The norns screen is 16 greys; on a full-colour LCD they can be any colour ramp.
+-- SYSTEM > TINT: colour of the LCD picture (uzume). The norns screen is 16 greys; on a full-colour LCD they can be any colour ramp.
 -- SPDX-License-Identifier: GPL-3.0-or-later
 local m = {
   pos = 1,

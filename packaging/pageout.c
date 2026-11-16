@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
-// Preloaded into Uzume's programs: now and then it pushes this process's idle anonymous memory into zram (MADV_PAGEOUT), so that big buffers
+// Preloaded into uzume's programs: now and then it pushes this process's idle anonymous memory into zram (MADV_PAGEOUT), so that big buffers
 // that nothing is touching cost almost no RAM. The pages come back by themselves when something reads them.
 #define _GNU_SOURCE
 #include <pthread.h>

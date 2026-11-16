@@ -1,8 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
-# Uzume launcher: SuperCollider (sclang + scsynth), then matron + crone + softcut (the `norns` binary).
-# Part of Uzume, GPL-3.0-or-later.
+# uzume launcher: SuperCollider (sclang + scsynth), then matron + crone + softcut (the `norns` binary).
+# Part of uzume, GPL-3.0-or-later.
 U=${UZUME_ROOT:-/opt/uzume}   # UZUME_ROOT: run an unpacked copy of the package (testing)
 D=${XDG_DATA_HOME:-$HOME/.local/share}/uzume
 W=$D/we                       # norns' $HOME: norns/ (read-only, from the package), dust/ (yours), matronrc.lua
@@ -29,8 +29,8 @@ Y
 # (from a computer: ssh -L 5000:127.0.0.1:5000 -L 5555:127.0.0.1:5555 -L 5556:127.0.0.1:5556 <user>@<device>, then open
 # http://127.0.0.1:5000/maiden/ -- 127.0.0.1, not "localhost": the consoles only answer requests for the address they listen on).
 [ -f "$D/maiden.conf" ] || cat > "$D/maiden.conf" <<'C'
-# maiden (web editor) for Uzume
-# on=1 starts it with Uzume (about 25 MB more memory). Then open http://<address>:5000/maiden/
+# maiden (web editor) for uzume
+# on=1 starts it with uzume (about 25 MB more memory). Then open http://<address>:5000/maiden/
 on=0
 # 127.0.0.1: this device only (from a computer: ssh port forwarding, then http://127.0.0.1:5000/maiden/).
 # 0.0.0.0: every computer on the network can open it, and run any code on this device. There is no password.
@@ -42,8 +42,8 @@ MLISTEN=${UZUME_MAIDEN_LISTEN:-$(sed -n 's/^listen=\([0-9.]*\)[[:space:]]*$/\1/p
 # ws-wrapper's listener also checks the address in each request: "*" is the form that accepts any, for listening everywhere
 case $MLISTEN in 0.0.0.0) WSHOST='*';; *) WSHOST=$MLISTEN;; esac
 [ "$MAIDEN" = 1 ] && [ -x "$U/bin/maiden" ] && [ -x "$U/bin/ws-wrapper" ] || MAIDEN=0
-# Memory: the desktop's panel, file manager, portal / volume helpers and the PulseAudio bridge are not needed while Uzume runs (it uses PipeWire's
-# own JACK interface and draws on the LCD, not on the desktop), and the Zero has 352 MB. They are stopped for the time Uzume runs and started
+# Memory: the desktop's panel, file manager, portal / volume helpers and the PulseAudio bridge are not needed while uzume runs (it uses PipeWire's
+# own JACK interface and draws on the LCD, not on the desktop), and the Zero has 352 MB. They are stopped for the time uzume runs and started
 # again when it ends. UZUME_KIOSK=0 leaves everything alone. Only the user's own services and processes are touched; nothing needs root.
 KIOSK_USER_UNITS="pipewire-pulse.socket pipewire-pulse.service xdg-desktop-portal-gtk.service xdg-desktop-portal-wlr.service xdg-desktop-portal.service xdg-document-portal.service xdg-permission-store.service gvfs-daemon.service gvfs-afc-volume-monitor.service gvfs-goa-volume-monitor.service gvfs-gphoto2-volume-monitor.service gvfs-mtp-volume-monitor.service gvfs-udisks2-volume-monitor.service mpris-proxy.service"
 KIOSK=0; KIOSK_RESTORE=""
@@ -85,7 +85,7 @@ cleanup 2>/dev/null   # leftovers of an earlier run; this must come before the l
 # keep what it had on the LCD and put it back on exit.
 FB=/dev/fb0
 head -c 108800 $FB > "$D/run/fb.snapshot" 2>/dev/null && SNAP=1
-# The launcher keeps drawing its status bar (clock, battery) over the LCD: it is paused while Uzume runs. A watchdog continues it even if this
+# The launcher keeps drawing its status bar (clock, battery) over the LCD: it is paused while uzume runs. A watchdog continues it even if this
 # script is killed, so it cannot stay frozen.
 LAUNCHER=$(pgrep -x M5CardputerZero | head -1)
 if [ -n "$LAUNCHER" ]; then

@@ -1,0 +1,23 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
+# norns scripts often write /home/we/dust/... by hand (norns' home). uzume's home is ~/.local/share/uzume/we, so /home/we is made
+# a link to it for the user who installs the package (the one who ran sudo; else the first normal user, uid 1000).
+# Nothing is done when /home/we already exists and is not such a link (another user or folder of that name).
+set -e
+[ "$1" = configure ] || exit 0
+U=${SUDO_USER:-}
+[ -n "$U" ] && [ "$U" != root ] || U=$(getent passwd 1000 | cut -d: -f1)
+[ -n "$U" ] || exit 0
+H=$(getent passwd "$U" | cut -d: -f6)
+[ -n "$H" ] && [ -d "$H" ] || exit 0
+T=$H/.local/share/uzume/we
+if [ -L /home/we ]; then
+  case $(readlink /home/we) in */.local/share/uzume/we) ;; *) exit 0;; esac
+elif [ -e /home/we ]; then
+  echo "uzume: /home/we already exists, leaving it alone (scripts that write /home/we/... will not find uzume's files)"
+  exit 0
+fi
+runuser -u "$U" -- mkdir -p "$T/dust/code" "$T/dust/audio" "$T/dust/data"
+ln -sfn "$T" /home/we
+exit 0

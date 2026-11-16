@@ -1,8 +1,8 @@
 # Licenses and third-party code
 
-Uzume's own code is GPL-3.0-or-later (`LICENSE`). It is built on the norns sources, which are GPL-3.0, so the combined work is GPL-3.0-or-later. Upstream copyright notices and license texts stay in place.
+uzume's own code is GPL-3.0-or-later (`LICENSE`). It is built on the norns sources, which are GPL-3.0, so the combined work is GPL-3.0-or-later. Upstream copyright notices and license texts stay in place.
 
-## Built into Uzume
+## Built into uzume
 
 | Component | License | Source |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Uzume's own code is GPL-3.0-or-later (`LICENSE`). It is built on the norns sourc
 | readerwriterqueue, concurrentqueue | BSD-2-Clause (with zlib-licensed semaphores) | part of the norns source |
 | trompeloeil | BSL-1.0 | part of the norns source |
 
-The Uzume changes to the norns sources are in `norns-port/` (`apply_patches.py` and `overlay/`); the upstream commit plus these files are the corresponding source of the `norns` binary.
+The uzume changes to the norns sources are in `norns-port/` (`apply_patches.py` and `overlay/`); the upstream commit plus these files are the corresponding source of the `norns` binary.
 
 ## Shipped as separate programs
 

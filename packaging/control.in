@@ -1,5 +1,5 @@
 Package: uzume
-Version: 0.1.5
+Version: 0.1.7
 Architecture: arm64
 Maintainer: Leo Kuroshita <7828838+kurogedelic@users.noreply.github.com>
 Section: sound
@@ -7,11 +7,11 @@ Priority: optional
 Installed-Size: @SIZE@
 Depends: libc6, libstdc++6, libgcc-s1, libasound2t64 | libasound2, libavahi-client3, libavahi-common3, libavahi-compat-libdnssd1, libboost-filesystem1.83.0, libboost-thread1.83.0, libcairo2, libevdev2, libfftw3-single3, liblo7, liblua5.3-0, libmbedtls21, libmbedx509-7, libmbedcrypto16, libnng1, libreadline8t64 | libreadline8, libsndfile1, libudev1, pipewire-bin | pipewire
 Description: run norns scripts on the Cardputer Zero
- Uzume is a build of the norns runtime (matron, crone, softcut and the SuperCollider
+ uzume is a build of the norns runtime (matron, crone, softcut and the SuperCollider
  engine host) for the Cardputer Zero: the 128x64 screen on the 320x170 LCD, the
  keyboard as the three keys and three encoders (1 2 3 = K1 K2 K3; Q/W, A/S or Z/C,
  X/F = E1, E2, E3 down/up; Backspace = K2, Enter = K3; hold Esc to quit), sound
  through PipeWire. Scripts go in ~/.local/share/uzume/we/dust/code.
  .
  Source: the upstream norns commit named in third_party/PINS plus the patches and
- additions in the Uzume repository (https://github.com/hugelton/Uzume).
+ additions in the uzume repository (https://github.com/hugelton/Uzume).

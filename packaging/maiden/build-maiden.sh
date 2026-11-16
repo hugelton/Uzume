@@ -1,10 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
-# Builds maiden (monome's web editor, GPL-3.0) for Uzume into build/maiden/:
+# Builds maiden (monome's web editor, GPL-3.0) for uzume into build/maiden/:
 #   maiden      the Go server (arm64), built in the container uzume-nb (Debian 13 golang-go)
 #   app/        the web UI, built in a node:16 container (maiden-web)
-# One change to maiden: a --host flag, so that Uzume can serve it on 127.0.0.1 only.
+# One change to maiden: a --host flag, so that uzume can serve it on 127.0.0.1 only.
 # Usage: sh packaging/maiden/build-maiden.sh    (sources in third_party/maiden)
 set -e
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
