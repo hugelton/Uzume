@@ -27,7 +27,7 @@ What is different from the original, in detail, is in [docs/DIFFERENCES.md](docs
 
 ## Screens
 
-Avonlea, amber tint:
+[Avonlea](https://github.com/kurogedelic/Avonlea), amber tint:
 
 ![Avonlea, amber tint](docs/images/avonlea.png)
 
@@ -35,11 +35,11 @@ The menus, with SYSTEM > TINT:
 
 ![Home, SYSTEM and TINT menus](docs/images/menus.png)
 
-The same script (awake) in six of the eight tints:
+The same script ([awake](https://github.com/tehn/awake)) in six of the eight tints:
 
 ![awake in white, paper, amber, green, cyan and pink](docs/images/tints.png)
 
-ong, barcode and o-o-o:
+[ong](https://github.com/dst78/ong), [barcode](https://github.com/schollz/barcode) and [o-o-o](https://github.com/schollz/o-o-o):
 
 ![ong, barcode and o-o-o](docs/images/scripts.png)
 
