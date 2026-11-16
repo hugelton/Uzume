@@ -3,7 +3,7 @@
 norns scripts on the Cardputer Zero.
 
 uzume is the norns runtime (matron, crone, softcut and the SuperCollider engine host) built for the Zero. The 128x64 screen is drawn on the 320x170 LCD,
-the keyboard stands in for the three keys and three encoders, and sound goes out through PipeWire. Scripts written for norns run as they are.
+the keyboard stands in for the three keys and three encoders, and sound goes out through PipeWire. The norns scripts tested so far run unmodified; see [Known limits](#known-limits) for what is missing.
 It comes as one .deb and shows up in the launcher.
 
 Uzume is the goddess of dance and laughter in Japanese mythology.
@@ -14,14 +14,14 @@ Uzume is the goddess of dance and laughter in Japanese mythology.
 
 | | |
 | --- | --- |
-| What runs | the original matron, crone, softcut, Lua core and SuperCollider engine host, built from the upstream norns source with 14 small patches |
+| What runs | the original matron, crone, softcut, Lua core and SuperCollider engine host, built from the upstream norns source with 15 small patches |
 | Screen | the 128x64 norns picture at 2x (256x128) on the 320x170 LCD. Drawn through DRM, so every frame reaches the LCD (60 Hz measured; `/dev/fb0` alone stops at about 19 Hz). SYSTEM > TINT colours the 16 greys, and the greys are corrected for the LCD so the dim levels show as on the OLED (GAMMA and CONTRAST in SYSTEM > SETTINGS > DISPLAY adjust it) |
 | Keys | the built-in keyboard stands in for K1-K3 and E1-E3 (see [Keys](#keys)) |
 | Sound | PipeWire's JACK interface, 48 kHz, 2048-frame blocks (about 43 ms) |
 | Memory | about 140 MB free while a script runs (idle memory is moved to zram, the desktop's helpers are stopped) |
 | Editor | maiden, included, off by default |
-| Scripts tried | awake, ong, Avonlea, First Light: run with sound. barcode, o-o-o: load and draw; they need live input or playing to make sound |
-| Not there | grid and arc (no serialosc), sc3-plugins, the line input, Wi-Fi / update / restart pages, DISPLAY > BRIGHTNESS; softcut buffers are about 43 s instead of 350 s |
+| Scripts tested | awake, ong, Avonlea, First Light: run unmodified, with sound. barcode, o-o-o: run unmodified and draw; they need live input or playing to make sound |
+| Limits | see [Known limits](#known-limits) |
 
 What is different from the original, in detail, is in [docs/DIFFERENCES.md](docs/DIFFERENCES.md).
 
@@ -45,13 +45,15 @@ The same script ([awake](https://github.com/tehn/awake)) in six of the eight tin
 
 ## Install
 
-Install from a computer (macOS or Linux; Windows has `ssh` and `scp` in PowerShell) on the same network as the Zero.
+Download `uzume_0.1.8_arm64.deb` from [Releases](https://github.com/hugelton/Uzume/releases).
+
+Install it from a computer (macOS or Linux; Windows has `ssh` and `scp` in PowerShell) on the same network as the Zero.
 Replace `pi` with your user name on the Zero. If `CardputerZero.local` is not found, use the Zero's IP address instead.
 
 Copy the package to the Zero:
 
 ```sh
-scp uzume_0.1.7_arm64.deb pi@CardputerZero.local:
+scp uzume_0.1.8_arm64.deb pi@CardputerZero.local:
 ```
 
 Log in to the Zero:
@@ -63,7 +65,7 @@ ssh pi@CardputerZero.local
 Install it (`sudo` asks for your password):
 
 ```sh
-sudo apt install ./uzume_0.1.7_arm64.deb
+sudo apt install ./uzume_0.1.8_arm64.deb
 ```
 
 The same command updates an older version. `sudo apt remove uzume` removes it; your scripts in `~/.local/share/uzume` stay.
@@ -100,9 +102,22 @@ then open http://127.0.0.1:5050/maiden/ (with `127.0.0.1`, not `localhost`). Por
 computer because macOS uses 5000 itself (AirPlay); 5555 and 5556 must keep their numbers. `listen=0.0.0.0` in the same file opens it to the
 whole network instead. maiden has no password: anyone who can open it can run any code on the device.
 
+## Known limits
+
+- Sound is processed in blocks of 2048 frames, about 43 ms, so latency is higher than on norns. Smaller blocks missed
+  deadlines on the Zero (user programs get no realtime priority).
+- softcut's two buffers hold about 43 s each instead of about 350 s (the Zero has 352 MB of RAM). Scripts that record
+  longer loops are cut short.
+- Not included: sc3-plugins (engines that need them do not load), grid and arc (no serialosc), the line input.
+- Engines are read when uzume starts: after adding a script with a new engine, restart uzume.
+- About 140 MB of RAM is free while a script runs. Scripts with big buffers or many voices can stall.
+- The Wi-Fi, update and restart pages and DISPLAY > BRIGHTNESS do nothing.
+- `/home/we` leads to the files of the user who installed the package.
+
+More detail in [docs/DIFFERENCES.md](docs/DIFFERENCES.md).
+
 ## TODO
 
-- norns crashes while quitting, after its state is saved. Nothing is lost, but it should end cleanly.
 - Long sessions: run scripts for an hour with key and encoder input and watch for dropouts and memory.
 - Keys: make the mapping closer to norns' own USB keyboard shortcuts (F1-F4 for the menu pages).
 - SETTINGS > DISPLAY > BRIGHTNESS: drive the LCD backlight. SYSTEM > RESTART: restart uzume.
@@ -119,7 +134,7 @@ UZUME_BUFFRAMES=2097152 sh norns-port/build.sh                                  
 docker build --platform linux/arm64 -t uzume-sc -f sc/build/Dockerfile sc/build   # SuperCollider and JACK
 sh packaging/maiden/build-maiden.sh                                               # maiden (Go server, web app in a node:16 container)
 sh packaging/collect.sh                                                           # gathers the pieces
-sh packaging/build-deb.sh                                                         # out/uzume_0.1.7_arm64.deb
+sh packaging/build-deb.sh                                                         # out/uzume_0.1.8_arm64.deb
 ```
 
 The changes to the upstream source are in `norns-port/apply_patches.py` (numbered, with a comment on each) and `norns-port/overlay/`.

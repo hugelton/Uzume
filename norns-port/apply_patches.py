@@ -88,3 +88,15 @@ edit('ws-wrapper/src/main.c', lambda s: s if 'fflush(stdout)' in s else s.replac
 #     saves the state as before and then quits, back to the launcher, the same way as holding Esc (EVENT_QUIT). New Lua call `_norns.quit()`.
 edit('matron/src/weaver.cc', lambda s: s if '_uzume_quit' in s else s.replace("static int _system_action(lua_State *l);", "static int _system_action(lua_State *l);\nstatic int _uzume_quit(lua_State *l) {\n    (void)l;\n    event_post(event_data_new(EVENT_QUIT));\n    return 0;\n}", 1).replace('    lua_register_norns("screen_gamma", &_screen_gamma);', '    lua_register_norns("screen_gamma", &_screen_gamma);\n    lua_register_norns("quit", &_uzume_quit);', 1))
 edit('lua/core/norns.lua', lambda s: s.replace('  _norns.system_action("shutdown", report_launch_failure("shutdown"))\n', '  _norns.quit() -- uzume: back to the launcher instead of powering off\n', 1))
+
+# 15. Quitting crashed (signal 11) after the state was saved. battery_deinit() cancels the battery thread, which only exists on
+#     the norns hardware (pthread_cancel on a thread that was never started). And main() calls matron_cleanup(), which ends with
+#     exit(0), and exit runs the same function again through atexit(): run it once. Then, with the crash gone, exit() hung:
+#     destroying crone's static objects waits on a condition variable that a still-running worker thread waits on. Everything
+#     that needs closing is closed by then (the state is saved, JACK is closed), so leave with _exit() after flushing output.
+edit('matron/src/hardware/battery.cc', lambda s: s if 'battery_started' in s else s
+     .replace('static pthread_t p;\n', 'static pthread_t p;\nstatic int battery_started = 0; // uzume: the thread only exists on the norns hardware\n', 1)
+     .replace('        pthread_setname_np(p, "battery_check");\n', '        battery_started = 1;\n        pthread_setname_np(p, "battery_check");\n', 1)
+     .replace('void battery_deinit() {\n    pthread_cancel(p);\n', 'void battery_deinit() {\n    if (battery_started) pthread_cancel(p);\n', 1))
+edit('matron/src/main.cc', lambda s: s if 'cleaned_up' in s else s.replace("void matron_cleanup(void) {\n", "void matron_cleanup(void) {\n    static int cleaned_up = 0; // uzume: also registered with atexit(), and it calls exit() itself\n    if (cleaned_up) return;\n    cleaned_up = 1;\n", 1))
+edit('matron/src/main.cc', lambda s: s if '_exit(0); // uzume' in s else s.replace('    fprintf(stderr, "matron shutdown complete\\n");\n    exit(0);\n', '    fprintf(stderr, "matron shutdown complete\\n");\n    fflush(NULL);\n    _exit(0); // uzume: exit() would run static destructors that wait forever on running threads\n', 1))

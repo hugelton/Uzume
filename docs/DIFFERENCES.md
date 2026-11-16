@@ -1,7 +1,7 @@
 # Differences from the original norns
 
 uzume uses the original sources: matron, crone, softcut, the Lua core and the SuperCollider engine host come from the upstream commit in `third_party/PINS`.
-The changes are in `norns-port/` (patches 1 to 14 in `apply_patches.py`, new files in `overlay/`). Everything else on this page is a consequence of the hardware.
+The changes are in `norns-port/` (patches 1 to 15 in `apply_patches.py`, new files in `overlay/`). Everything else on this page is a consequence of the hardware.
 
 ## Hardware
 
