@@ -42,10 +42,10 @@ MLISTEN=${UZUME_MAIDEN_LISTEN:-$(sed -n 's/^listen=\([0-9.]*\)[[:space:]]*$/\1/p
 # ws-wrapper's listener also checks the address in each request: "*" is the form that accepts any, for listening everywhere
 case $MLISTEN in 0.0.0.0) WSHOST='*';; *) WSHOST=$MLISTEN;; esac
 [ "$MAIDEN" = 1 ] && [ -x "$U/bin/maiden" ] && [ -x "$U/bin/ws-wrapper" ] || MAIDEN=0
-# Memory: the desktop's panel, file manager, portal / volume helpers and the PulseAudio bridge are not needed while uzume runs (it uses PipeWire's
+# Memory: the desktop's panel, file manager and portal / volume helpers are not needed while uzume runs (it uses PipeWire's
 # own JACK interface and draws on the LCD, not on the desktop), and the Zero has 352 MB. They are stopped for the time uzume runs and started
 # again when it ends. UZUME_KIOSK=0 leaves everything alone. Only the user's own services and processes are touched; nothing needs root.
-KIOSK_USER_UNITS="pipewire-pulse.socket pipewire-pulse.service xdg-desktop-portal-gtk.service xdg-desktop-portal-wlr.service xdg-desktop-portal.service xdg-document-portal.service xdg-permission-store.service gvfs-daemon.service gvfs-afc-volume-monitor.service gvfs-goa-volume-monitor.service gvfs-gphoto2-volume-monitor.service gvfs-mtp-volume-monitor.service gvfs-udisks2-volume-monitor.service mpris-proxy.service"
+KIOSK_USER_UNITS="xdg-desktop-portal-gtk.service xdg-desktop-portal-wlr.service xdg-desktop-portal.service xdg-document-portal.service xdg-permission-store.service gvfs-daemon.service gvfs-afc-volume-monitor.service gvfs-goa-volume-monitor.service gvfs-gphoto2-volume-monitor.service gvfs-mtp-volume-monitor.service gvfs-udisks2-volume-monitor.service mpris-proxy.service"
 KIOSK=0; KIOSK_RESTORE=""
 kiosk_on() {
   [ "${UZUME_KIOSK:-1}" = 1 ] || return 0
@@ -61,19 +61,22 @@ kiosk_on() {
 kiosk_off() {
   [ "$KIOSK" = 1 ] || return 0
   KIOSK=0
-  # detached, so that it finishes even if this script is killed right after it ends
-  (
-    [ "$KIOSK_FM" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/pcmanfm-pi >/dev/null 2>&1 </dev/null &
-    [ "$KIOSK_PANEL" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/wf-panel-pi >/dev/null 2>&1 </dev/null &
-    for u in $KIOSK_RESTORE; do case $u in *.socket) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
-    for u in $KIOSK_RESTORE; do case $u in *.service) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
-  ) </dev/null >/dev/null 2>&1 &
+  # In a session of its own: it finishes even if this script is killed right after it ends, and the launcher, which waits until
+  # every process of the group it started has ended before it draws its screen again, does not wait for these few seconds.
+  setsid sh -c '
+    [ "$1" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/pcmanfm-pi >/dev/null 2>&1 </dev/null &
+    [ "$2" = 1 ] && setsid /usr/bin/lwrespawn /usr/bin/wf-panel-pi >/dev/null 2>&1 </dev/null &
+    shift 2
+    for u in "$@"; do case $u in *.socket) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
+    for u in "$@"; do case $u in *.service) systemctl --user start "$u" >/dev/null 2>&1;; esac; done
+  ' kiosk-restore "${KIOSK_FM:-0}" "${KIOSK_PANEL:-0}" $KIOSK_RESTORE </dev/null >/dev/null 2>&1 &
 }
 cleanup() {
   [ "$SNAP" = 1 ] && [ -s "$D/run/fb.snapshot" ] && cat "$D/run/fb.snapshot" > $FB 2>/dev/null
   [ -n "$LAUNCHER" ] && kill -CONT "$LAUNCHER" 2>/dev/null
   pkill -u "$(id -u)" -x sclang; pkill -u "$(id -u)" -x scsynth; pkill -u "$(id -u)" -f '^tail -f /dev/null$'
   pkill -u "$(id -u)" -x maiden; pkill -u "$(id -u)" -x ws-wrapper
+  [ -n "$GOPID" ] && { pkill -P "$GOPID" 2>/dev/null; kill "$GOPID" 2>/dev/null; }
   # norns' helper process (runs `os.execute` / `util.os_capture` commands) does not end when norns does
   pkill -u "$(id -u)" -f '^sidecar \[norns\]$'
   pw-metadata -n settings 0 clock.force-quantum 0 >/dev/null 2>&1
@@ -108,7 +111,9 @@ else
 fi
 i=0; while [ $i -lt 60 ] && ! grep -q "initPolls" "$D/run/sclang.log" 2>/dev/null; do sleep 1; i=$((i+1)); done
 cd "$W"; export HOME=$W
-( sleep 25; touch "$GO" ) &     # by then norns has started and loaded the engines
+# by then norns has started and loaded the engines. In a session of its own, like kiosk_off(), so that the launcher does not wait for it.
+setsid sh -c 'sleep 25; touch "$1"' pageout-go "$GO" </dev/null >/dev/null 2>&1 &
+GOPID=$!
 if [ "$MAIDEN" = 1 ]; then
   maiden server --host "$MLISTEN" --port 5000 --app "$U/share/maiden/app/" --data "$W/dust/" --doc "$W/norns/doc/" \
     --config "$U/share/maiden/maiden.yaml" > "$D/run/maiden.log" 2>&1 </dev/null &
