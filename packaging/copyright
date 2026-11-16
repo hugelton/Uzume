@@ -1,0 +1,64 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Uzume
+Source: https://github.com/hugelton/Uzume (this package); upstream norns: https://github.com/monome/norns
+
+Files: opt/uzume/bin/norns opt/uzume/share/norns/* opt/uzume/share/sc/*
+Copyright: monome and norns contributors
+License: GPL-3+
+ norns (matron, crone, softcut, lua, SuperCollider-side engine host) is GPL-3.0 (see opt/uzume/share/norns/LICENSE.txt).
+ The binary is built from the upstream commit listed in third_party/PINS with the patches in norns-port/.
+ It contains parts that are GPL-2+ (Ableton Link), MIT (doctest, lua-cjson), BSD-2-Clause (readerwriterqueue) and BSL-1.0.
+
+Files: opt/uzume/share/norns/resources/Vera*.ttf opt/uzume/share/norns/resources/vera-LICENSE.txt
+Copyright: Bitstream, Inc.
+License: Bitstream-Vera
+ See opt/uzume/share/norns/resources/vera-LICENSE.txt.
+
+Files: opt/uzume/share/norns/resources/Roboto-*.ttf
+Copyright: Google Inc.
+License: Apache-2.0
+ See opt/uzume/share/norns/resources/roboto-LICENSE.txt.
+
+Files: opt/uzume/share/norns/resources/Particle.ttf
+Copyright: 2016 Daniel Sim
+License: OFL-1.1
+ SIL Open Font License 1.1 (text in the font's name table; https://github.com/dansimco/particle).
+
+Files: opt/uzume/share/norns/resources/basis33.ttf
+Copyright: 2004, 2005 Tristan Grimmer; 2014 Manchson
+License: Expat
+
+Files: opt/uzume/share/norns/resources/norns.ttf
+Copyright: monome and the author of the font (see the font's own metadata)
+License: GPL-3+
+Comment: part of the norns source.
+
+Files: opt/uzume/share/norns/resources/bmp/*
+Comment: bitmap fonts from https://github.com/Tecate/bitmap-fonts: ctrld-fixed (Proggy Tiny, MIT), scientifica (OFL, romeovs),
+ terminus ter-* (OFL-1.1, Dimitar Zhekov), tom-thumb (CC-BY-4.0, Brian Swetland / Robey Pointer; tom-thumb-LICENSE.txt),
+ unscii (public domain, Viznut). creep.bdf and liquid.ttf are NOT shipped (no usable licence): see patch 11.
+License: Expat and OFL-1.1 and CC-BY-4.0 and public-domain
+
+Files: opt/uzume/bin/sclang opt/uzume/bin/scsynth opt/uzume/lib/SuperCollider/* opt/uzume/share/SuperCollider/*
+Copyright: James McCartney and SuperCollider contributors
+License: GPL-3+
+ Built from SuperCollider 3.13 source; source: https://github.com/supercollider/supercollider
+
+Files: opt/uzume/lib/libmonome.so.*
+Copyright: William Light and libmonome contributors
+License: ISC
+
+Files: opt/uzume/lib/libjack.so.*
+Copyright: PipeWire contributors
+License: Expat and LGPL-2.1+
+ PipeWire's JACK client library, unmodified, from the Debian package pipewire-jack; see libjack-pipewire-copyright.
+ It is bundled so that Uzume does not replace the system's JACK libraries; it can be replaced by another libjack.so.0.
+
+Files: opt/uzume/bin/uzume-run opt/uzume/bin/jack_connect opt/uzume/etc/* opt/uzume/share/dust-default/* usr/share/APPLaunch/*
+Copyright: 2026 Leo Kuroshita (@kurogedelic)
+License: GPL-3+
+
+License: GPL-3+
+ This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+ version. On Debian systems the full text is in /usr/share/common-licenses/GPL-3.

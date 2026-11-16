@@ -1,0 +1,5 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 Leo Kuroshita (@kurogedelic)
+# norns' Crone.sc calls the JACK tool `jack_connect`; with PipeWire's libjack the equivalent is pw-link.
+exec pw-link "$@"

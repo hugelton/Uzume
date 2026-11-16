@@ -1,0 +1,8 @@
+build/
+out/
+__pycache__/
+.DS_Store
+third_party/*/.git/
+third_party/norns/
+third_party/libmonome/
+third_party/_scripts/
