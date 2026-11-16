@@ -23,17 +23,25 @@ excludePaths:
     - $U/share/SuperCollider/SCClassLibrary/Platform/iphone
 postInlineWarnings: false
 Y
-# The launcher only repaints what changed (its status bar), so it would show our last frame until a key is pressed:
-# keep what it had on the LCD and put it back on exit.
-FB=/dev/fb0
-head -c 108800 $FB > "$D/run/fb.snapshot" 2>/dev/null
-# The launcher keeps drawing its status bar (clock, battery) over the LCD: it is paused while Uzume runs. A watchdog continues it even if this
-# script is killed, so it cannot stay frozen.
-LAUNCHER=$(pgrep -x M5CardputerZero | head -1)
-if [ -n "$LAUNCHER" ]; then
-  kill -STOP "$LAUNCHER" 2>/dev/null
-  setsid sh -c "while kill -0 $$ 2>/dev/null; do sleep 1; done; kill -CONT $LAUNCHER 2>/dev/null" >/dev/null 2>&1 </dev/null &
-fi
+# maiden, norns' web editor (off unless turned on): $D/maiden.conf, or UZUME_MAIDEN=1 / UZUME_MAIDEN_LISTEN=<address> for one run.
+# It serves http://<address>:5000; the editor's two consoles talk to norns (5555) and SuperCollider (5556) through ws-wrapper.
+# Anyone who can reach those ports can run any code as this user: there is no password. 127.0.0.1 keeps them on this device
+# (from a computer: ssh -L 5000:127.0.0.1:5000 -L 5555:127.0.0.1:5555 -L 5556:127.0.0.1:5556 <user>@<device>, then open
+# http://127.0.0.1:5000/maiden/ -- 127.0.0.1, not "localhost": the consoles only answer requests for the address they listen on).
+[ -f "$D/maiden.conf" ] || cat > "$D/maiden.conf" <<'C'
+# maiden (web editor) for Uzume
+# on=1 starts it with Uzume (about 25 MB more memory). Then open http://<address>:5000/maiden/
+on=0
+# 127.0.0.1: this device only (from a computer: ssh port forwarding, then http://127.0.0.1:5000/maiden/).
+# 0.0.0.0: every computer on the network can open it, and run any code on this device. There is no password.
+listen=127.0.0.1
+C
+MAIDEN=${UZUME_MAIDEN:-$(sed -n 's/^on=\([01]\)[[:space:]]*$/\1/p' "$D/maiden.conf" | tail -1)}
+MLISTEN=${UZUME_MAIDEN_LISTEN:-$(sed -n 's/^listen=\([0-9.]*\)[[:space:]]*$/\1/p' "$D/maiden.conf" | tail -1)}
+: "${MLISTEN:=127.0.0.1}"
+# ws-wrapper's listener also checks the address in each request: "*" is the form that accepts any, for listening everywhere
+case $MLISTEN in 0.0.0.0) WSHOST='*';; *) WSHOST=$MLISTEN;; esac
+[ "$MAIDEN" = 1 ] && [ -x "$U/bin/maiden" ] && [ -x "$U/bin/ws-wrapper" ] || MAIDEN=0
 # Memory: the desktop's panel, file manager, portal / volume helpers and the PulseAudio bridge are not needed while Uzume runs (it uses PipeWire's
 # own JACK interface and draws on the LCD, not on the desktop), and the Zero has 352 MB. They are stopped for the time Uzume runs and started
 # again when it ends. UZUME_KIOSK=0 leaves everything alone. Only the user's own services and processes are touched; nothing needs root.
@@ -62,14 +70,28 @@ kiosk_off() {
   ) </dev/null >/dev/null 2>&1 &
 }
 cleanup() {
-  [ -s "$D/run/fb.snapshot" ] && cat "$D/run/fb.snapshot" > $FB 2>/dev/null
+  [ "$SNAP" = 1 ] && [ -s "$D/run/fb.snapshot" ] && cat "$D/run/fb.snapshot" > $FB 2>/dev/null
   [ -n "$LAUNCHER" ] && kill -CONT "$LAUNCHER" 2>/dev/null
   pkill -u "$(id -u)" -x sclang; pkill -u "$(id -u)" -x scsynth; pkill -u "$(id -u)" -f '^tail -f /dev/null$'
+  pkill -u "$(id -u)" -x maiden; pkill -u "$(id -u)" -x ws-wrapper
+  # norns' helper process (runs `os.execute` / `util.os_capture` commands) does not end when norns does
+  pkill -u "$(id -u)" -f '^sidecar \[norns\]$'
   pw-metadata -n settings 0 clock.force-quantum 0 >/dev/null 2>&1
   kiosk_off
 }
 trap cleanup EXIT INT TERM
-cleanup 2>/dev/null
+cleanup 2>/dev/null   # leftovers of an earlier run; this must come before the launcher is paused (cleanup continues it)
+# The launcher only repaints what changed (its status bar), so it would show our last frame until a key is pressed:
+# keep what it had on the LCD and put it back on exit.
+FB=/dev/fb0
+head -c 108800 $FB > "$D/run/fb.snapshot" 2>/dev/null && SNAP=1
+# The launcher keeps drawing its status bar (clock, battery) over the LCD: it is paused while Uzume runs. A watchdog continues it even if this
+# script is killed, so it cannot stay frozen.
+LAUNCHER=$(pgrep -x M5CardputerZero | head -1)
+if [ -n "$LAUNCHER" ]; then
+  kill -STOP "$LAUNCHER" 2>/dev/null
+  setsid sh -c "while kill -0 $$ 2>/dev/null; do sleep 1; done; kill -CONT $LAUNCHER 2>/dev/null" >/dev/null 2>&1 </dev/null &
+fi
 kiosk_on
 # No realtime priority for user processes on the Zero: at PipeWire's default 1024-frame quantum the graph missed
 # deadlines (audible jitter). 2048 frames (43 ms) does not.
@@ -79,8 +101,18 @@ pw-metadata -n settings 0 clock.force-quantum 2048 >/dev/null 2>&1
 PREL=${UZUME_PAGEOUT_LIB:-$U/lib/libuzume-pageout.so}
 if [ "${UZUME_PAGEOUT:-1}" = 1 ] && [ -f "$PREL" ]; then PRE=$PREL; else PRE=; fi
 GO=$D/run/pageout.go; rm -f "$GO"; export UZUME_PAGEOUT_GO=$GO       # the library waits for this file: sweeping during start-up would slow sclang to a crawl
-(ulimit -v 450000; LD_PRELOAD=$PRE XDG_CONFIG_HOME=$D/cfg sclang -D -l "$D/run/sclang.yaml" > "$D/run/sclang.log" 2>&1 </dev/null) &
+if [ "$MAIDEN" = 1 ]; then  # the consoles: sclang reads what ws-wrapper passes from the browser (no -D)
+  (ulimit -v 450000; LD_PRELOAD=$PRE XDG_CONFIG_HOME=$D/cfg ws-wrapper "ws://$WSHOST:5556" sclang -i maiden -l "$D/run/sclang.yaml" > "$D/run/sclang.log" 2>&1 </dev/null) &
+else
+  (ulimit -v 450000; LD_PRELOAD=$PRE XDG_CONFIG_HOME=$D/cfg sclang -D -l "$D/run/sclang.yaml" > "$D/run/sclang.log" 2>&1 </dev/null) &
+fi
 i=0; while [ $i -lt 60 ] && ! grep -q "initPolls" "$D/run/sclang.log" 2>/dev/null; do sleep 1; i=$((i+1)); done
 cd "$W"; export HOME=$W
 ( sleep 25; touch "$GO" ) &     # by then norns has started and loaded the engines
-tail -f /dev/null | LD_PRELOAD=$PRE $U/bin/norns > "$D/run/norns.log" 2>&1
+if [ "$MAIDEN" = 1 ]; then
+  maiden server --host "$MLISTEN" --port 5000 --app "$U/share/maiden/app/" --data "$W/dust/" --doc "$W/norns/doc/" \
+    --config "$U/share/maiden/maiden.yaml" > "$D/run/maiden.log" 2>&1 </dev/null &
+  LD_PRELOAD=$PRE ws-wrapper "ws://$WSHOST:5555" $U/bin/norns > "$D/run/norns.log" 2>&1 </dev/null
+else
+  tail -f /dev/null | LD_PRELOAD=$PRE $U/bin/norns > "$D/run/norns.log" 2>&1
+fi

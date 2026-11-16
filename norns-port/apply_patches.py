@@ -79,3 +79,12 @@ edit('matron/src/hardware/screen.cc', lambda s: s.replace('"liquid.ttf"', '"norn
 # 12. `require("cjson")`: norns' image has lua-cjson as a Lua module, while matron here carries it built in and only exposes it as the global `_json`.
 #     Scripts that `require` it (and carry an arm32 cjson.so of their own, which cannot load on aarch64) work again.
 edit('lua/core/config.lua', lambda s: s if 'package.preload["cjson"]' in s else 'package.preload["cjson"] = package.preload["cjson"] or function() return _json end\n' + s)
+
+# 13. ws-wrapper (maiden's REPL bridge) copies the program's output to its own stdout with printf and never flushes: into a log
+#     file that arrives in 4 KB blocks, late. uzume-run waits for lines in those logs, so flush each read.
+edit('ws-wrapper/src/main.c', lambda s: s if 'fflush(stdout)' in s else s.replace('            printf("%s", buf);\n', '            fwrite(buf, 1, nb, stdout);\n            fflush(stdout);\n', 1))
+
+# 14. SLEEP (home menu) ran `sudo shutdown now`, which would power off the whole device (or fail on the password). On Uzume it
+#     saves the state as before and then quits, back to the launcher, the same way as holding Esc (EVENT_QUIT). New Lua call `_norns.quit()`.
+edit('matron/src/weaver.cc', lambda s: s if '_uzume_quit' in s else s.replace("static int _system_action(lua_State *l);", "static int _system_action(lua_State *l);\nstatic int _uzume_quit(lua_State *l) {\n    (void)l;\n    event_post(event_data_new(EVENT_QUIT));\n    return 0;\n}", 1).replace('    lua_register_norns("screen_gamma", &_screen_gamma);', '    lua_register_norns("screen_gamma", &_screen_gamma);\n    lua_register_norns("quit", &_uzume_quit);', 1))
+edit('lua/core/norns.lua', lambda s: s.replace('  _norns.system_action("shutdown", report_launch_failure("shutdown"))\n', '  _norns.quit() -- Uzume: back to the launcher instead of powering off\n', 1))

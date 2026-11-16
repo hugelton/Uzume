@@ -6,15 +6,17 @@
 #include <stdbool.h>
 #include <cairo.h>
 #include "ssd1322.h"
+void uz_screen_gamma(double g);  // uzume_screen.cc: SETTINGS > DISPLAY reaches the LCD picture
+void uz_screen_contrast(int c);
 extern "C" {
 void ssd1322_init() {}
 void ssd1322_deinit() {}
 void ssd1322_refresh() {}
 void ssd1322_update(cairo_surface_t *, bool) {}
 void ssd1322_set_brightness(uint8_t) {}
-void ssd1322_set_contrast(uint8_t) {}
+void ssd1322_set_contrast(uint8_t c) { uz_screen_contrast(c); }
 void ssd1322_set_display_mode(ssd1322_display_mode_t) {}
-void ssd1322_set_gamma(double) {}
+void ssd1322_set_gamma(double g) { uz_screen_gamma(g); }
 void ssd1322_set_refresh_rate(uint8_t) {}
 uint8_t *ssd1322_resize_buffer(size_t) { return NULL; }
 }

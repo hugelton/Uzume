@@ -1,5 +1,5 @@
 Package: uzume
-Version: 0.1.0
+Version: 0.1.5
 Architecture: arm64
 Maintainer: Leo Kuroshita <7828838+kurogedelic@users.noreply.github.com>
 Section: sound

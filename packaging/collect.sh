@@ -14,6 +14,7 @@ docker image inspect uzume-sc >/dev/null 2>&1 || { echo "build the SuperCollider
 
 rm -rf out/deploy out/pkg-src; mkdir -p out/deploy/bin out/deploy/lib out/deploy/home/we/norns out/pkg-src/bin out/pkg-src/lib out/pkg-src/share
 docker cp uzume-nb:/src/norns/build/norns/norns out/deploy/bin/norns
+docker cp uzume-nb:/src/norns/build/ws-wrapper/ws-wrapper out/deploy/bin/ws-wrapper   # maiden's console bridge (optional, see uzume-run)
 docker cp uzume-nb:/usr/local/lib/libmonome.so.1.4.11 out/deploy/lib/ && ln -sf libmonome.so.1.4.11 out/deploy/lib/libmonome.so.1
 cp -a "$CTX/norns/lua" "$CTX/norns/resources" "$CTX/norns/LICENSE.txt" "$CTX/norns/matronrc.lua" out/deploy/home/we/norns/
 

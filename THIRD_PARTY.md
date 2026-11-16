@@ -25,6 +25,15 @@ The Uzume changes to the norns sources are in `norns-port/` (`apply_patches.py` 
 
 The `libjack.so.0` in the package can be replaced by any other JACK client library.
 
+## maiden (web editor, off unless turned on)
+
+| Component | License | Source |
+| --- | --- | --- |
+| maiden (`maiden` server and the web app in `share/maiden/app`), Copyright (c) monome and maiden contributors | GPL-3.0 | https://github.com/monome/maiden, commit 2e64f7d; build recipe and the one change (a `--host` option) in `packaging/maiden/build-maiden.sh` |
+| `ws-wrapper` (connects maiden's consoles to norns and SuperCollider) | GPL-3.0-or-later | part of the norns source (patch 13 in `norns-port/apply_patches.py`) |
+| Go modules compiled into `maiden` (gin, cobra, viper, go-git, golang.org/x/..., the Go standard library and others) | MIT, BSD-2-Clause, BSD-3-Clause, Apache-2.0, MPL-2.0 (hcl) | listed with their license texts in `/usr/share/doc/uzume/maiden-third-party-licenses.txt` |
+| npm packages bundled into the web app (React, Redux, Ace, lodash, core-js and others) | MIT, BSD-3-Clause, ISC, Apache-2.0 | listed with their license texts in the same file |
+
 ## Fonts installed in `/opt/uzume/share/norns/resources`
 
 | Font | License |

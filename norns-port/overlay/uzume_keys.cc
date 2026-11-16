@@ -8,7 +8,8 @@
  *                           E2: A S   or  Z C (the Zero's "<" ">")   or  Left / Right
  *                           E3: X F (the Zero's down / up)   or  Down / Up
  *             Shift held: the encoder moves 4 steps at a time.
- *             Esc held for 1 s: quit (Esc alone does nothing else: scripts use K2 for their own things).
+ *             Esc held for 1 s: quit like SLEEP (state saved, so the script comes back next time); if Lua does not
+ *             quit within 3 s, quit anyway. Esc alone does nothing else: scripts use K2 for their own things.
  *
  * Config (Lua): _boot.add_io('keys:cpz', {dev = '/dev/input/by-path/...'})
  * The device is grabbed (EVIOCGRAB) so the launcher does not also react to the same keys; it is released on exit.
@@ -125,6 +126,7 @@ static void *cpz_poll(void *data) {
     int shift = 0;
     struct timespec esc_down = {0, 0};
     int esc_held = 0;
+    double quit_deadline = 0;
     int held_code = 0;
     double next_rep = 0;
 
@@ -143,8 +145,17 @@ static void *cpz_poll(void *data) {
             double held = (now.tv_sec - esc_down.tv_sec) + (now.tv_nsec - esc_down.tv_nsec) / 1e9;
             if (held >= 1.0) {
                 esc_held = 0;
-                event_post(event_data_new(EVENT_QUIT));
+                // norns.shutdown() saves the state with clean_shutdown = true (otherwise norns does not load the
+                // script again on the next start), then quits through _norns.quit() (patch 14)
+                union event_data *ev = event_data_new(EVENT_EXEC_CODE_LINE);
+                ev->exec_code_line.line = strdup("norns.shutdown()\n");
+                event_post(ev);
+                quit_deadline = now_s() + 3.0;
             }
+        }
+        if (quit_deadline > 0 && now_s() >= quit_deadline) { // Lua is stuck (a script in a loop): quit without it
+            quit_deadline = 0;
+            event_post(event_data_new(EVENT_QUIT));
         }
         if (held_code && now_s() >= next_rep) {
             int n, d;

@@ -1,15 +1,17 @@
 # Differences from the original norns
 
 Uzume uses the original sources: matron, crone, softcut, the Lua core and the SuperCollider engine host come from the upstream commit in `third_party/PINS`.
-The changes are in `norns-port/` (patches 1 to 11 in `apply_patches.py`, new files in `overlay/`). Everything else on this page is a consequence of the hardware.
+The changes are in `norns-port/` (patches 1 to 14 in `apply_patches.py`, new files in `overlay/`). Everything else on this page is a consequence of the hardware.
 
 ## Hardware
 
 | | norns | Uzume |
 | --- | --- | --- |
-| Screen | SSD1322 OLED, 128x64, 16 greys | the same picture on the 320x170 LCD (`/dev/fb0`): 2x (256x128, centred) or 2.5x (320x160, smoothed) |
+| Screen | SSD1322 OLED, 128x64, 16 greys | the same picture on the 320x170 LCD: 2x (256x128, centred) or 2.5x (320x160, smoothed). Drawn through DRM (`/dev/dri/card1`), so each frame reaches the LCD (60 Hz measured); `/dev/fb0` is the fallback (at most about 19 Hz). `UZUME_DRM=off` forces `/dev/fb0` |
 | Screen colour | grey | SYSTEM > TINT: eight colours (patch 10) |
-| Brightness, contrast, gamma (SYSTEM > SETTINGS > DISPLAY) | change the OLED | the page is there, it does nothing |
+| Grey levels | the OLED's light grows in proportion to the level | corrected for the LCD (whose pixel values are not proportional to light), so the dim levels stay visible as on the OLED |
+| Contrast, gamma (SYSTEM > SETTINGS > DISPLAY) | change the OLED | change the same correction on the LCD picture |
+| Brightness (same page) | changes the OLED | does nothing (the LCD backlight is not driven yet) |
 | Keys and encoders | 3 keys, 3 encoders | the keyboard, see the README; no encoder acceleration |
 | USB keyboards | menu shortcuts | untouched, but the built-in keyboard is read by Uzume itself |
 | Power, battery, sleep, GPIO | norns shield | not handled |
@@ -44,9 +46,10 @@ The changes are in `norns-port/` (patches 1 to 11 in `apply_patches.py`, new fil
 | --- | --- | --- |
 | Home | `/home/we` | `~/.local/share/uzume/we` (`dust/code`, `dust/audio`, `dust/data`); the program is in `/opt/uzume` |
 | Paths in the Select menu | `/home/we/dust/code`, fixed | the real path (patch 8) |
-| maiden (web editor, script catalogue) | yes | not included. Copy scripts into `dust/code` |
 | Fonts | the full set | the same set, except `liquid.ttf` and `bmp/creep.bdf`, which have no usable license. Those font numbers draw with norns.ttf and tom-thumb (patch 11) |
 | Services | systemd units | one launcher script (`/opt/uzume/bin/uzume-run`) and a `.desktop` entry. While Uzume runs, the desktop panel, file manager, portal and volume helpers and the PulseAudio bridge are stopped (about 10 MB more free RAM) and started again at the end; `UZUME_KIOSK=0` turns this off |
+| maiden (web editor) | starts with the system, open on the network | included, off unless turned on in `~/.local/share/uzume/maiden.conf`; listens on 127.0.0.1 unless set to `0.0.0.0` (see the README). Editor, file browser and both consoles work; its restart buttons need systemd and do nothing; the script catalogue is not tested |
+| SLEEP (home menu) | powers off the device | saves the state and goes back to the launcher (patch 14). Holding Esc does the same |
 | `require("cjson")` | the image has it as a Lua module | works (patch 12): the copy built into matron is exposed under that name |
 | Link, MIDI clock, softcut, params, metro, clock, osc | yes | yes, it is the same code |
 
