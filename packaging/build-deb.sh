@@ -9,6 +9,8 @@ S=$ROOT/out/stage; rm -rf "$S"; mkdir -p "$S"
 U=$S/opt/uzume; mkdir -p $U/bin $U/lib $U/etc $U/share/dust-default/uzume-keytest
 cp $ROOT/out/deploy/bin/norns $U/bin/; cp $ROOT/out/pkg-src/bin/sclang $ROOT/out/pkg-src/bin/scsynth $U/bin/
 cp $HERE/uzume-run $HERE/jack_connect $U/bin/
+# libuzume-pageout.so: pushes idle memory into zram (see pageout.c); built in the arm64 container
+docker exec uzume-nb mkdir -p /pageout && docker cp $HERE/pageout.c uzume-nb:/pageout/pageout.c && docker exec uzume-nb gcc -O2 -shared -fPIC -o /pageout/libuzume-pageout.so /pageout/pageout.c -lpthread && docker cp uzume-nb:/pageout/libuzume-pageout.so $U/lib/
 cp -a $ROOT/out/deploy/lib/libmonome.so.1 $ROOT/out/deploy/lib/libmonome.so.1.4.11 $U/lib/
 J=$(ls $ROOT/out/pkg-src/libjack.so.0.* | head -1); cp $J $U/lib/; ln -s $(basename $J) $U/lib/libjack.so.0
 cp -a $ROOT/out/pkg-src/lib/SuperCollider $U/lib/

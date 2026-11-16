@@ -47,10 +47,17 @@ The changes are in `norns-port/` (patches 1 to 11 in `apply_patches.py`, new fil
 | maiden (web editor, script catalogue) | yes | not included. Copy scripts into `dust/code` |
 | Fonts | the full set | the same set, except `liquid.ttf` and `bmp/creep.bdf`, which have no usable license. Those font numbers draw with norns.ttf and tom-thumb (patch 11) |
 | Services | systemd units | one launcher script (`/opt/uzume/bin/uzume-run`) and a `.desktop` entry. While Uzume runs, the desktop panel, file manager, portal and volume helpers and the PulseAudio bridge are stopped (about 10 MB more free RAM) and started again at the end; `UZUME_KIOSK=0` turns this off |
+| `require("cjson")` | the image has it as a Lua module | works (patch 12): the copy built into matron is exposed under that name |
 | Link, MIDI clock, softcut, params, metro, clock, osc | yes | yes, it is the same code |
+
+## Memory
+
+The launcher script pushes memory that nothing is using into zram (`libuzume-pageout.so`, preloaded into norns, sclang and scsynth; `UZUME_PAGEOUT=0` turns it off)
+and stops the desktop's helpers while Uzume runs (`UZUME_KIOSK=0` turns that off). Together they leave about 140 MB free while a script runs, instead of about 60 MB.
 
 ## Limits
 
-- About 40 MB of RAM is free with the desktop running, and swap is in use. A script with big buffers or many voices can stall.
+- Scripts that write `/home/we/...` paths by hand do not find them: Uzume's home is `~/.local/share/uzume/we`.
+- About 40 MB of RAM is free with the desktop running and no memory tricks, and swap is in use. A script with big buffers or many voices can stall.
 - The LCD shows the launcher until norns draws its first frame.
 - Latency is about 43 ms plus whatever the engine adds.

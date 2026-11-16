@@ -67,7 +67,12 @@ kiosk_on
 # deadlines (audible jitter). 2048 frames (43 ms) does not.
 pw-metadata -n settings 0 clock.force-quantum 2048 >/dev/null 2>&1
 # sclang first: its start-up peaks at about 95 MB, before matron and crone grow.
-(ulimit -v 450000; XDG_CONFIG_HOME=$D/cfg sclang -D -l "$D/run/sclang.yaml" > "$D/run/sclang.log" 2>&1 </dev/null) &
+# Idle memory is pushed into zram while it is not used (libuzume-pageout.so, about 70 MB of RAM for the three programs); UZUME_PAGEOUT=0 turns it off.
+PREL=${UZUME_PAGEOUT_LIB:-$U/lib/libuzume-pageout.so}
+if [ "${UZUME_PAGEOUT:-1}" = 1 ] && [ -f "$PREL" ]; then PRE=$PREL; else PRE=; fi
+GO=$D/run/pageout.go; rm -f "$GO"; export UZUME_PAGEOUT_GO=$GO       # the library waits for this file: sweeping during start-up would slow sclang to a crawl
+(ulimit -v 450000; LD_PRELOAD=$PRE XDG_CONFIG_HOME=$D/cfg sclang -D -l "$D/run/sclang.yaml" > "$D/run/sclang.log" 2>&1 </dev/null) &
 i=0; while [ $i -lt 60 ] && ! grep -q "initPolls" "$D/run/sclang.log" 2>/dev/null; do sleep 1; i=$((i+1)); done
 cd "$W"; export HOME=$W
-tail -f /dev/null | $U/bin/norns > "$D/run/norns.log" 2>&1
+( sleep 25; touch "$GO" ) &     # by then norns has started and loaded the engines
+tail -f /dev/null | LD_PRELOAD=$PRE $U/bin/norns > "$D/run/norns.log" 2>&1

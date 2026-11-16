@@ -75,3 +75,7 @@ edit('matron/src/weaver.cc', lambda s: s if 'screen_tint' in s else s.replace("s
 # 11. fonts with no usable licence are not shipped: liquid.ttf is "FontStruct Non-Commercial", bmp/creep.bdf has no licence text.
 #     Their font numbers stay valid (scripts select fonts by number) but draw with norns.ttf / tom-thumb instead.
 edit('matron/src/hardware/screen.cc', lambda s: s.replace('"liquid.ttf"', '"norns.ttf"').replace('"bmp/creep.bdf"', '"bmp/tom-thumb.bdf"'))
+
+# 12. `require("cjson")`: norns' image has lua-cjson as a Lua module, while matron here carries it built in and only exposes it as the global `_json`.
+#     Scripts that `require` it (and carry an arm32 cjson.so of their own, which cannot load on aarch64) work again.
+edit('lua/core/config.lua', lambda s: s if 'package.preload["cjson"]' in s else 'package.preload["cjson"] = package.preload["cjson"] or function() return _json end\n' + s)
