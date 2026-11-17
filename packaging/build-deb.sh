@@ -41,5 +41,5 @@ chmod 755 $U/bin/*; find $S -type d -exec chmod 755 {} +
 docker rm -f uzume-pkg >/dev/null 2>&1 || true
 docker run -d --name uzume-pkg --platform linux/arm64 uzume-norns sleep 600 >/dev/null
 tar -C $S -cf - . | docker exec -i uzume-pkg sh -c 'mkdir -p /pkg && tar -C /pkg --no-same-owner -xf - && chown -R root:root /pkg && dpkg-deb --root-owner-group --build /pkg /uzume.deb >/dev/null && dpkg-deb -I /uzume.deb | head -3'
-mkdir -p $ROOT/out; docker cp uzume-pkg:/uzume.deb $ROOT/out/uzume_0.1.11_arm64.deb; docker rm -f uzume-pkg >/dev/null
-ls -l $ROOT/out/uzume_0.1.11_arm64.deb
+mkdir -p $ROOT/out; docker cp uzume-pkg:/uzume.deb $ROOT/out/uzume_0.1.12_arm64.deb; docker rm -f uzume-pkg >/dev/null
+ls -l $ROOT/out/uzume_0.1.12_arm64.deb
