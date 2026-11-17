@@ -17,7 +17,7 @@ The changes are in `norns-port/` (patches 1 to 15 in `apply_patches.py`, new fil
 | Power, battery, sleep, GPIO | norns shield | not handled |
 | Wi-Fi, update, reset pages | image with NetworkManager and systemd | the pages are there; the Zero's own OS does that, so they do not work |
 | MIDI | ALSA raw MIDI | the same. Patch 6: a device that another program already holds no longer blocks the start |
-| Grid, arc | through serialosc | libmonome is built, serialosc is not included |
+| Grid, arc | through serialosc | libmonome opens USB grids directly (norns' device monitor finds them by udev, `MONOME_PROTOCOL_DIR` points at the packaged protocol modules); serialosc is not included, so only matron sees the grid, not other OSC apps |
 
 ## Audio
 

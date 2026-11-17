@@ -15,6 +15,8 @@ cp $ROOT/build/maiden/maiden $U/bin/; mkdir -p $U/share/maiden; cp -a $ROOT/buil
 # libuzume-pageout.so: pushes idle memory into zram (see pageout.c); built in the arm64 container
 docker exec uzume-nb mkdir -p /pageout && docker cp $HERE/pageout.c uzume-nb:/pageout/pageout.c && docker exec uzume-nb gcc -O2 -shared -fPIC -o /pageout/libuzume-pageout.so /pageout/pageout.c -lpthread && docker cp uzume-nb:/pageout/libuzume-pageout.so $U/lib/
 cp -a $ROOT/out/deploy/lib/libmonome.so.1 $ROOT/out/deploy/lib/libmonome.so.1.4.11 $U/lib/
+# grid / arc protocol modules (found through MONOME_PROTOCOL_DIR, see uzume-run and the posix.c patch in third_party/libmonome)
+mkdir -p $U/lib/monome; cp -a $ROOT/out/deploy/lib/monome/protocol_*.so $U/lib/monome/
 J=$(ls $ROOT/out/pkg-src/libjack.so.0.* | head -1); cp $J $U/lib/; ln -s $(basename $J) $U/lib/libjack.so.0
 cp -a $ROOT/out/pkg-src/lib/SuperCollider $U/lib/
 mkdir -p $U/share/norns; cp -a $ROOT/out/deploy/home/we/norns/lua $ROOT/out/deploy/home/we/norns/resources $ROOT/out/deploy/home/we/norns/LICENSE.txt $U/share/norns/
@@ -25,6 +27,7 @@ mkdir -p $U/share/SuperCollider; cp -a $ROOT/out/pkg-src/share/SuperCollider/. $
 mkdir -p $U/share/sc; cp -a $ROOT/third_party/norns/sc/core $ROOT/third_party/norns/sc/engines $U/share/sc/
 cp $HERE/matronrc.lua $HERE/startup.scd $U/etc/
 cp $HERE/keytest.lua $U/share/dust-default/uzume-keytest/uzume-keytest.lua
+mkdir -p $U/share/dust-default/gridtest; cp $HERE/gridtest.lua $U/share/dust-default/gridtest/gridtest.lua   # lights a monome grid, shows pad presses
 A=$S/usr/share/APPLaunch; mkdir -p $A/applications $A/share/images
 cp $HERE/uzume.desktop $A/applications/; cp $HERE/uzume.png $HERE/uzume_80.png $HERE/uzume_100.png $A/share/images/
 C=$S/usr/share/doc/uzume; mkdir -p $C
@@ -38,5 +41,5 @@ chmod 755 $U/bin/*; find $S -type d -exec chmod 755 {} +
 docker rm -f uzume-pkg >/dev/null 2>&1 || true
 docker run -d --name uzume-pkg --platform linux/arm64 uzume-norns sleep 600 >/dev/null
 tar -C $S -cf - . | docker exec -i uzume-pkg sh -c 'mkdir -p /pkg && tar -C /pkg --no-same-owner -xf - && chown -R root:root /pkg && dpkg-deb --root-owner-group --build /pkg /uzume.deb >/dev/null && dpkg-deb -I /uzume.deb | head -3'
-mkdir -p $ROOT/out; docker cp uzume-pkg:/uzume.deb $ROOT/out/uzume_0.1.10_arm64.deb; docker rm -f uzume-pkg >/dev/null
-ls -l $ROOT/out/uzume_0.1.10_arm64.deb
+mkdir -p $ROOT/out; docker cp uzume-pkg:/uzume.deb $ROOT/out/uzume_0.1.11_arm64.deb; docker rm -f uzume-pkg >/dev/null
+ls -l $ROOT/out/uzume_0.1.11_arm64.deb

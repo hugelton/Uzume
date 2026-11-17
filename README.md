@@ -106,7 +106,7 @@ whole network instead. maiden has no password: anyone who can open it can run an
   deadlines on the Zero (user programs get no realtime priority).
 - softcut's two buffers hold about 43 s each instead of about 350 s (the Zero has 352 MB of RAM). Scripts that record
   longer loops are cut short.
-- Not included: sc3-plugins (engines that need them do not load), grid and arc (no serialosc), the line input.
+- Not included: sc3-plugins (engines that need them do not load), serialosc (USB grids work in norns scripts through libmonome; other OSC apps cannot see them), the line input.
 - Engines are read when uzume starts: after adding a script with a new engine, restart uzume.
 - About 140 MB of RAM is free while a script runs. Scripts with big buffers or many voices can stall.
 - The Wi-Fi, update and restart pages and DISPLAY > BRIGHTNESS do nothing.
@@ -120,7 +120,7 @@ More detail in [docs/DIFFERENCES.md](docs/DIFFERENCES.md).
 - Long sessions: run scripts for an hour with key and encoder input and watch for dropouts and memory.
 - Keys: make the mapping closer to norns' own USB keyboard shortcuts (F1-F4 for the menu pages).
 - SETTINGS > DISPLAY > BRIGHTNESS: drive the LCD backlight. SYSTEM > RESTART: restart uzume.
-- grid and arc: add serialosc.
+- arc and non-norns OSC clients: add serialosc.
 - maiden: try the script catalogue (project install and update).
 
 ## Build

@@ -8,6 +8,8 @@ D=${XDG_DATA_HOME:-$HOME/.local/share}/uzume
 W=$D/we                       # norns' $HOME: norns/ (read-only, from the package), dust/ (yours), matronrc.lua
 : "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"; export XDG_RUNTIME_DIR
 export LD_LIBRARY_PATH=$U/lib PATH=$U/bin:$PATH
+# libmonome (grids, arcs) loads its protocol modules from here, not from the /usr/local/lib it was built for
+export MONOME_PROTOCOL_DIR=${MONOME_PROTOCOL_DIR:-$U/lib/monome}
 mkdir -p "$W/dust/code" "$W/dust/audio" "$W/dust/data" "$D/cfg/SuperCollider" "$D/run"
 ln -sfn $U/share/norns "$W/norns"
 cp -n $U/etc/matronrc.lua "$W/matronrc.lua"

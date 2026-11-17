@@ -9,6 +9,8 @@ HERE=$(cd "$(dirname "$0")" && pwd); TP="$HERE/../third_party"
 CTX=${CTX:-$HERE/../build/ctx}   # scratch copy lives on the SSD, next to the repository
 rm -rf "$CTX"; mkdir -p "$CTX"
 tar -C "$TP" --exclude=.git -cf - norns libmonome | tar -C "$CTX" -xf -
+# libmonome finds its protocol modules through MONOME_PROTOCOL_DIR (grids work without /usr/local/lib/monome)
+patch -p1 -d "$CTX/libmonome" < "$HERE/libmonome-protocol-dir.patch"
 python3 "$HERE/apply_patches.py" "$CTX/norns"
 # norns ships waf 2.0.14 (2018), which imports `imp` (removed in Python 3.12); libmonome ships a newer waf
 cp "$TP/libmonome/waf" "$CTX/norns/waf"

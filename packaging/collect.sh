@@ -16,6 +16,7 @@ rm -rf out/deploy out/pkg-src; mkdir -p out/deploy/bin out/deploy/lib out/deploy
 docker cp uzume-nb:/src/norns/build/norns/norns out/deploy/bin/norns
 docker cp uzume-nb:/src/norns/build/ws-wrapper/ws-wrapper out/deploy/bin/ws-wrapper   # maiden's console bridge (optional, see uzume-run)
 docker cp uzume-nb:/usr/local/lib/libmonome.so.1.4.11 out/deploy/lib/ && ln -sf libmonome.so.1.4.11 out/deploy/lib/libmonome.so.1
+docker cp uzume-nb:/usr/local/lib/monome out/deploy/lib/monome   # protocol_mext.so (grid), protocol_osc.so, ...
 cp -a "$CTX/norns/lua" "$CTX/norns/resources" "$CTX/norns/LICENSE.txt" "$CTX/norns/matronrc.lua" out/deploy/home/we/norns/
 
 cid=$(docker create uzume-sc); docker cp "$cid":/opt/uzume out/sc-prefix; docker rm "$cid" >/dev/null

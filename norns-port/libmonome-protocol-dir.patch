@@ -1,0 +1,19 @@
+diff --git a/src/platform/posix.c b/src/platform/posix.c
+index 263b9bb..53a5327 100644
+--- a/src/platform/posix.c
++++ b/src/platform/posix.c
+@@ -47,7 +47,13 @@ monome_t *monome_platform_load_protocol(const char *proto) {
+ 	monome_t *monome;
+ 	char *buf;
+ 
+-	if( asprintf(&buf, LIBDIR "/monome/protocol_%s" LIBSUFFIX, proto) < 0 )
++	/* uzume: the protocol modules live next to the package, not in the compiled-in
++	 * LIBDIR; MONOME_PROTOCOL_DIR (a directory holding protocol_*.so) overrides it. */
++	const char *override = getenv("MONOME_PROTOCOL_DIR");
++	if( override && *override ) {
++		if( asprintf(&buf, "%s/protocol_%s" LIBSUFFIX, override, proto) < 0 )
++			return NULL;
++	} else if( asprintf(&buf, LIBDIR "/monome/protocol_%s" LIBSUFFIX, proto) < 0 )
+ 		return NULL;
+ 
+ 	dl_handle = dlopen(buf, RTLD_LAZY);
