@@ -12,7 +12,7 @@ It comes as one .deb and shows up in the launcher.
 
 | | |
 | --- | --- |
-| What runs | the original matron, crone, softcut, Lua core and SuperCollider engine host, built from the upstream norns source with 15 small patches |
+| What runs | the original matron, crone, softcut, Lua core and SuperCollider engine host, built from the upstream norns source with 16 small patches (and one for libmonome) |
 | Screen | the 128x64 norns picture at 2x (256x128) on the 320x170 LCD. Drawn through DRM, so every frame reaches the LCD (60 Hz measured; `/dev/fb0` alone stops at about 19 Hz). SYSTEM > TINT colours the 16 greys, and the greys are corrected for the LCD so the dim levels show as on the OLED (GAMMA and CONTRAST in SYSTEM > SETTINGS > DISPLAY adjust it) |
 | Keys | the built-in keyboard stands in for K1-K3 and E1-E3 (see [Keys](#keys)) |
 | Sound | PipeWire's JACK interface, 48 kHz, 2048-frame blocks (about 43 ms) |
@@ -136,7 +136,7 @@ sh packaging/collect.sh                                                         
 sh packaging/build-deb.sh                                                         # out/uzume_0.1.12_arm64.deb
 ```
 
-The changes to the upstream source are in `norns-port/apply_patches.py` (numbered, with a comment on each) and `norns-port/overlay/`.
+The changes to the upstream source are in `norns-port/apply_patches.py` (numbered, with a comment on each) and `norns-port/overlay/`, plus `norns-port/libmonome-protocol-dir.patch` for libmonome.
 
 ## License
 
