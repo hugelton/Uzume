@@ -43,7 +43,7 @@ The same script ([awake](https://github.com/tehn/awake)) in six of the eight tin
 
 ## Install
 
-Download `uzume_0.1.10_arm64.deb` from [Releases](https://github.com/hugelton/Uzume/releases).
+Download `uzume_0.1.12_arm64.deb` from [Releases](https://github.com/hugelton/Uzume/releases).
 
 Install it from a computer (macOS or Linux; Windows has `ssh` and `scp` in PowerShell) on the same network as the Zero.
 Replace `pi` with your user name on the Zero. If `CardputerZero.local` is not found, use the Zero's IP address instead.
@@ -51,7 +51,7 @@ Replace `pi` with your user name on the Zero. If `CardputerZero.local` is not fo
 Copy the package to the Zero:
 
 ```sh
-scp uzume_0.1.10_arm64.deb pi@CardputerZero.local:
+scp uzume_0.1.12_arm64.deb pi@CardputerZero.local:
 ```
 
 Log in to the Zero:
@@ -63,7 +63,7 @@ ssh pi@CardputerZero.local
 Install it (`sudo` asks for your password):
 
 ```sh
-sudo apt install ./uzume_0.1.10_arm64.deb
+sudo apt install ./uzume_0.1.12_arm64.deb
 ```
 
 The same command updates an older version. `sudo apt remove uzume` removes it; your scripts in `~/.local/share/uzume` stay.
@@ -133,7 +133,7 @@ UZUME_BUFFRAMES=2097152 sh norns-port/build.sh                                  
 docker build --platform linux/arm64 -t uzume-sc -f sc/build/Dockerfile sc/build   # SuperCollider and JACK
 sh packaging/maiden/build-maiden.sh                                               # maiden (Go server, web app in a node:16 container)
 sh packaging/collect.sh                                                           # gathers the pieces
-sh packaging/build-deb.sh                                                         # out/uzume_0.1.10_arm64.deb
+sh packaging/build-deb.sh                                                         # out/uzume_0.1.12_arm64.deb
 ```
 
 The changes to the upstream source are in `norns-port/apply_patches.py` (numbered, with a comment on each) and `norns-port/overlay/`.
